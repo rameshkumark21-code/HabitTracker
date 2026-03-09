@@ -1,5 +1,5 @@
-streamlit==1.32.2
-streamlit-gsheets-connection==0.0.5
+streamlit>=1.32.2
+st-gsheets-connection
 pandas==2.2.1
 pytz==2024.1
 gspread==6.0.2
