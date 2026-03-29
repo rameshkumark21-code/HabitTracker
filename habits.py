@@ -422,7 +422,7 @@ def render_section(cat, cat_habits, log_date_iso, logs_df, today):
 
     # Column config — 3 visible cols only (Habit wide, 7d small, Today small)
     ccfg = {
-        "Habit": st.column_config.TextColumn("Habit", disabled=True, width="large"),
+        "Habit": st.column_config.TextColumn("Habit", disabled=True, width=None),
         "7d":    st.column_config.TextColumn("7d",    disabled=True, width="small"),
         "🔥":    st.column_config.TextColumn("🔥",    disabled=True, width="small"),
     }
