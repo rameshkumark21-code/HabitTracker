@@ -423,11 +423,11 @@ def render_section(cat, cat_habits, log_date_iso, logs_df, today):
     # Column config — 3 visible cols only (Habit wide, 7d small, Today small)
     ccfg = {
         "Habit": st.column_config.TextColumn("Habit", disabled=True, width=None),
-        "7d":    st.column_config.TextColumn("7d",    disabled=True, width="small"),
-        "🔥":    st.column_config.TextColumn("🔥",    disabled=True, width="small"),
+        "7d":    st.column_config.TextColumn("7d",    disabled=True, width="none"),
+        "🔥":    st.column_config.TextColumn("🔥",    disabled=True, width="none"),
     }
     if h_type=="boolean":
-        ccfg[col_lbl] = st.column_config.CheckboxColumn(col_lbl, width="small")
+        ccfg[col_lbl] = st.column_config.CheckboxColumn(col_lbl, width="none")
     else:
         ccfg[col_lbl] = st.column_config.NumberColumn(
             col_lbl, min_value=0, format="%g", width="small")
