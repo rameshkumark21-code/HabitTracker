@@ -8,20 +8,27 @@ import json, uuid
 st.set_page_config(page_title="Habits", page_icon="🔥",
                    layout="centered", initial_sidebar_state="collapsed")
 
-# ── DESIGN TOKENS ─────────────────────────────────────────────────────────────
+# ── DESIGN TOKENS  (notebook / paper light theme) ─────────────────────────────
 C = {
-    "bg":      "#111418", "surface": "#1c1f26", "s2": "#252930",
-    "border":  "#2e3340", "text":    "#edf0f7", "muted": "#5c6680",
-    "blue":    "#5b8dee", "green":   "#22d3a0", "red":   "#e84855",
-    "amber":   "#f0a500", "streak":  "#f97316", "dim":   "rgba(91,141,238,0.10)",
+    "bg":      "#F5F3EE",
+    "surface": "#FFFFFF",
+    "s2":      "#EFEDE7",
+    "border":  "#DDD9D0",
+    "text":    "#1C1916",
+    "muted":   "#A09890",
+    "blue":    "#2563EB",
+    "green":   "#16A34A",
+    "red":     "#DC2626",
+    "amber":   "#D97706",
+    "streak":  "#EA580C",
+    "dim":     "rgba(37,99,235,0.08)",
 }
 
-# Category accent colours (drives icon circle bg + section label)
 CAT_COLOR = {
-    "Daily":                  C["blue"],
-    "Nutrition & Movement":   C["green"],
-    "Workout Days":           C["amber"],
-    "Weekly":                 C["streak"],
+    "Daily":                "#2563EB",
+    "Nutrition & Movement": "#16A34A",
+    "Workout Days":         "#D97706",
+    "Weekly":               "#EA580C",
 }
 
 SCOPES           = ["https://www.googleapis.com/auth/spreadsheets",
@@ -39,9 +46,9 @@ HABIT_SEEDS = [
     ["h04","Pre-sleep stretch",       "🌙","Daily",               "boolean","1",  "",      "daily","",  4,"TRUE"],
     ["h05","In bed by 12:30 AM",      "😴","Daily",               "boolean","1",  "",      "daily","",  5,"TRUE"],
     ["h06","1-Floor Rule (stairs)",   "🪜","Daily",               "boolean","1",  "",      "daily","",  6,"TRUE"],
-    ["h07","50/5 Rule – breaks",      "⏱","Nutrition & Movement","numeric","5",  "breaks","daily","",  7,"TRUE"],
+    ["h07","50/5 Rule - breaks",      "⏱","Nutrition & Movement","numeric","5",  "brks",  "daily","",  7,"TRUE"],
     ["h08","Protein intake",          "🥩","Nutrition & Movement","numeric","140","g",     "daily","",  8,"TRUE"],
-    ["h09","Floors climbed",          "🗼","Nutrition & Movement","numeric","10", "floors","daily","",  9,"TRUE"],
+    ["h09","Floors climbed",          "🗼","Nutrition & Movement","numeric","10", "fl",    "daily","",  9,"TRUE"],
     ["h10","Workout before 10 AM",    "🏋","Workout Days",        "boolean","1",  "",      "daily","", 10,"TRUE"],
     ["h11","Foam rolling done",       "🧹","Workout Days",        "boolean","1",  "",      "daily","", 11,"TRUE"],
     ["h12","Post-workout protein",    "🥤","Workout Days",        "boolean","1",  "",      "daily","", 12,"TRUE"],
@@ -49,6 +56,8 @@ HABIT_SEEDS = [
     ["h14","Flexibility / yoga",      "🧘","Weekly",              "boolean","1",  "",      "weekly","Sat",14,"TRUE"],
     ["h15","Weekly stair test",       "📊","Weekly",              "boolean","1",  "",      "weekly","Sun",15,"TRUE"],
 ]
+
+_COLS = [3.2, 0.8, 0.8, 0.8, 0.8, 1.1]
 
 # ═══════════════════════════════════════════════════════════════════════════════
 #  DATE HELPERS
@@ -263,143 +272,171 @@ def _same(a, b, h_type):
     except: return False
 
 # ═══════════════════════════════════════════════════════════════════════════════
-#  CSS
+#  CSS — light notebook, ultra-compact
 # ═══════════════════════════════════════════════════════════════════════════════
 def inject_css():
     st.markdown(f"""<style>
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600&display=swap');
 *,*::before,*::after{{box-sizing:border-box;margin:0;padding:0}}
-html,body,[data-testid="stAppViewContainer"],[data-testid="stApp"]{{
-    background:{C["bg"]} !important;color:{C["text"]};font-family:'DM Sans',sans-serif}}
-[data-testid="stAppViewContainer"]>.main{{max-width:480px;margin:0 auto;padding:0 0 90px!important}}
-.block-container{{padding:0 6px 90px!important;max-width:480px!important}}
-[data-testid="stHeader"],[data-testid="stToolbar"],[data-testid="collapsedControl"],
-[data-testid="stSidebar"],footer,#MainMenu{{display:none!important}}
 
-/* ── page header ── */
-.hdr{{padding:12px 6px 10px;border-bottom:1px solid {C["border"]};margin-bottom:6px}}
-.hdr-date{{font-size:.58rem;font-weight:700;color:{C["muted"]};letter-spacing:1px;text-transform:uppercase}}
-.hdr-greet{{font-size:1.15rem;font-weight:800;color:{C["text"]};margin:2px 0 8px}}
-.pbar{{background:{C["s2"]};border-radius:100px;height:4px;overflow:hidden}}
+html,body,
+[data-testid="stAppViewContainer"],
+[data-testid="stApp"]{{
+    background:{C["bg"]}!important;
+    color:{C["text"]};
+    font-family:'DM Sans',sans-serif}}
+
+[data-testid="stAppViewContainer"]>.main{{
+    max-width:480px;margin:0 auto;padding:0 0 76px!important}}
+.block-container{{padding:0 6px 76px!important;max-width:480px!important}}
+
+[data-testid="stHeader"],[data-testid="stToolbar"],
+[data-testid="collapsedControl"],[data-testid="stSidebar"],
+footer,#MainMenu{{display:none!important}}
+
+/* ── nuke all Streamlit vertical gaps ────────────────────────────────────── */
+[data-testid="stVerticalBlock"]>div{{gap:0!important}}
+[data-testid="stVerticalBlockSeparator"]{{display:none!important}}
+[data-testid="element-container"]{{padding:0!important;margin:0!important}}
+[data-testid="stHorizontalBlock"]{{
+    gap:2px!important;align-items:center!important;
+    padding:0!important;margin:0!important}}
+
+/* ── page header ─────────────────────────────────────────────────────────── */
+.hdr{{padding:10px 4px 8px;border-bottom:2px solid {C["border"]};margin-bottom:2px}}
+.hdr-date{{font-size:.55rem;font-weight:700;color:{C["muted"]};
+    letter-spacing:1.2px;text-transform:uppercase}}
+.hdr-greet{{font-size:1.08rem;font-weight:800;color:{C["text"]};margin:1px 0 6px}}
+.pbar{{background:{C["s2"]};border-radius:100px;height:3px;overflow:hidden}}
 .pbar-fill{{height:100%;border-radius:100px;transition:width .5s ease}}
-.pbar-lbl{{display:flex;justify-content:space-between;font-size:.58rem;color:{C["muted"]};margin-top:3px}}
+.pbar-lbl{{display:flex;justify-content:space-between;
+    font-size:.56rem;color:{C["muted"]};margin-top:2px}}
 
-/* ── section divider ── */
-.sdiv{{display:flex;align-items:center;gap:7px;margin:12px 0 4px;padding:0 2px}}
-.sdiv-dot{{width:6px;height:6px;border-radius:50%;flex-shrink:0}}
-.sdiv-txt{{font-size:.6rem;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;
-    color:{C["muted"]};white-space:nowrap}}
-.sdiv-line{{flex:1;height:1px;background:{C["border"]}}}
-.sdiv-badge{{font-size:.6rem;font-weight:700;padding:1px 8px;border-radius:20px;
-    background:{C["s2"]};white-space:nowrap;border:1px solid {C["border"]}}}
+/* ── section divider ─────────────────────────────────────────────────────── */
+.sdiv{{display:flex;align-items:center;gap:5px;
+    margin:8px 0 0;padding:3px 2px;
+    border-bottom:1px solid {C["border"]}}}
+.sdiv-dot{{width:5px;height:5px;border-radius:50%;flex-shrink:0}}
+.sdiv-txt{{font-size:.52rem;font-weight:800;letter-spacing:1.3px;
+    text-transform:uppercase;white-space:nowrap}}
+.sdiv-line{{flex:1}}
+.sdiv-badge{{font-size:.52rem;font-weight:700;padding:1px 6px;
+    border-radius:20px;background:{C["s2"]};white-space:nowrap;
+    border:1px solid {C["border"]}}}
 
-/* ── date header strip ── */
-.date-hdr-row{{display:flex;align-items:center;padding:0 2px;margin-bottom:2px}}
-.dhcell{{flex:1;text-align:center;min-width:0}}
-.dhcell-name{{flex:3.5;text-align:left;padding-left:4px}}
-.dhday{{font-size:.56rem;font-weight:700;letter-spacing:.6px;text-transform:uppercase}}
-.dhnum{{font-size:.8rem;font-weight:800;line-height:1.1}}
+/* ── date header cells ───────────────────────────────────────────────────── */
+.dhcell{{text-align:center;padding:2px 0}}
+.dhday{{font-size:.48rem;font-weight:700;letter-spacing:.5px;
+    text-transform:uppercase;color:{C["muted"]}}}
+.dhnum{{font-size:.75rem;font-weight:800;line-height:1.1;color:{C["muted"]}}}
 .dhcell-today .dhday,.dhcell-today .dhnum{{color:{C["text"]}}}
-.dhcell-past .dhday,.dhcell-past .dhnum{{color:{C["muted"]}}}
 
-/* ── habit rows ── */
-.habit-row-outer{{border-bottom:1px solid {C["border"]}22;padding:1px 0}}
+/* ── row separator line ──────────────────────────────────────────────────── */
+.row-sep{{height:1px;background:{C["border"]}66;margin:0 2px}}
 
-/* icon circle */
-.hicon-wrap{{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;
-    justify-content:center;font-size:.9rem;flex-shrink:0}}
+/* ── habit name column ───────────────────────────────────────────────────── */
+.hname-wrap{{display:flex;align-items:center;gap:5px;padding:3px 0}}
+.hicon{{font-size:.82rem;line-height:1;flex-shrink:0;width:20px;text-align:center}}
+.hname-txt{{font-size:.76rem;font-weight:600;color:{C["text"]};
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.3}}
+.hname-sub{{font-size:.5rem;color:{C["muted"]};line-height:1}}
+.hstreak{{font-size:.48rem;font-weight:700;vertical-align:middle;margin-left:3px}}
 
-/* name block */
-.hname-txt{{font-size:.8rem;font-weight:600;color:{C["text"]};
-    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.2}}
-.hname-sub{{font-size:.56rem;color:{C["muted"]};margin-top:1px;line-height:1}}
-
-/* past-day cells */
-.dc{{text-align:center;padding:6px 0;font-size:.78rem;font-weight:700;line-height:1}}
+/* ── past day cells ──────────────────────────────────────────────────────── */
+.dc{{text-align:center;font-size:.75rem;font-weight:700;
+    line-height:1;padding:2px 0}}
 .dc-done{{color:{C["green"]}}}
 .dc-miss{{color:{C["border"]}}}
-.dc-num-ok{{font-size:.62rem;color:{C["green"]};line-height:1.15;text-align:center;padding:4px 0}}
-.dc-num-lo{{font-size:.62rem;color:{C["amber"]};line-height:1.15;text-align:center;padding:4px 0}}
-.dc-num-nil{{font-size:.78rem;color:{C["border"]};text-align:center;padding:6px 0;font-weight:700}}
-.dc-unit{{font-size:.46rem;color:{C["muted"]};display:block;margin-top:1px}}
+.dc-num{{text-align:center;font-size:.58rem;font-weight:700;
+    line-height:1.3;padding:2px 0}}
+.dc-ok{{color:{C["green"]}}}
+.dc-lo{{color:{C["amber"]}}}
+.dc-nil{{color:{C["border"]};font-size:.72rem}}
+.dc-unit{{font-size:.42rem;color:{C["muted"]};display:block}}
 
-/* ── today toggle button ── */
-.tog-wrap [data-testid="stButton"]>button{{
-    background:transparent!important;border:1px solid {C["border"]}!important;
-    border-radius:8px!important;font-size:.9rem!important;font-weight:800!important;
-    padding:0!important;height:34px!important;width:100%!important;
-    min-height:unset!important;color:{C["muted"]}!important;
+/* ── today toggle button (global base) ──────────────────────────────────── */
+[data-testid="stButton"]>button{{
+    background:transparent!important;border:1.5px solid {C["border"]}!important;
+    border-radius:6px!important;color:{C["muted"]}!important;
+    font-family:'DM Sans',sans-serif!important;
+    font-size:.86rem!important;font-weight:700!important;
+    padding:0!important;height:26px!important;width:100%!important;
+    min-height:unset!important;line-height:1!important;
     transition:all .15s!important;box-shadow:none!important}}
-.tog-wrap [data-testid="stButton"]>button:hover{{
-    border-color:{C["green"]}!important;color:{C["green"]}!important}}
-.tog-done [data-testid="stButton"]>button{{
-    background:rgba(34,211,160,0.12)!important;
-    border-color:{C["green"]}!important;color:{C["green"]}!important}}
+[data-testid="stButton"]>button:hover{{
+    border-color:{C["blue"]}!important;color:{C["blue"]}!important;
+    background:{C["dim"]}!important}}
 
-/* ── number input (numeric today) ── */
+/* ── today number input ──────────────────────────────────────────────────── */
 [data-testid="stNumberInput"]{{margin:0!important}}
 [data-testid="stNumberInput"] input{{
-    background:{C["s2"]}!important;border:1px solid {C["border"]}!important;
-    border-radius:8px!important;color:{C["text"]}!important;
+    background:{C["surface"]}!important;
+    border:1.5px solid {C["border"]}!important;
+    border-radius:6px!important;color:{C["text"]}!important;
     font-family:'DM Sans',sans-serif!important;
-    font-size:.78rem!important;font-weight:700!important;
-    padding:5px 6px!important;text-align:center!important;
-    height:34px!important;min-height:unset!important}}
+    font-size:.72rem!important;font-weight:700!important;
+    padding:2px 4px!important;text-align:center!important;
+    height:26px!important;min-height:unset!important}}
 [data-testid="stNumberInput"] [data-testid="stNumberInputStepUp"],
-[data-testid="stNumberInput"] [data-testid="stNumberInputStepDown"]{{display:none!important}}
+[data-testid="stNumberInput"] [data-testid="stNumberInputStepDown"]{{
+    display:none!important}}
 
-/* ── bottom progress strip ── */
-.cs{{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;
-    max-width:480px;z-index:999;background:{C["surface"]};
-    border-top:1px solid {C["border"]};padding:8px 16px 18px;
-    display:flex;align-items:center;gap:12px}}
-.cs-pct{{font-family:'JetBrains Mono',monospace;font-size:1rem;font-weight:700;flex-shrink:0}}
-.cs-bar{{flex:1;background:{C["s2"]};border-radius:100px;height:6px;overflow:hidden}}
-.cs-fill{{height:100%;border-radius:100px;transition:width .4s ease}}
-.cs-lbl{{font-size:.6rem;color:{C["muted"]};flex-shrink:0;font-family:'JetBrains Mono',monospace}}
-
-/* ── nav + reload buttons ── */
+/* ── nav selectbox ───────────────────────────────────────────────────────── */
 div[data-key="nav_dd"]>div>div>div{{
-    background:{C["dim"]}!important;border:1px solid {C["blue"]}!important;
-    border-radius:9px!important;font-weight:800!important;font-size:.82rem!important}}
-[data-testid="stButton"]>button{{
-    background:transparent!important;border:none!important;color:{C["muted"]}!important;
-    font-family:'DM Sans',sans-serif!important;font-size:.7rem!important;font-weight:700!important;
-    padding:4px 8px!important;border-radius:7px!important;width:100%!important;
-    transition:color .15s,background .15s!important;box-shadow:none!important}}
-[data-testid="stButton"]>button:hover{{color:{C["blue"]}!important;background:{C["dim"]}!important}}
-[data-testid="stFormSubmitButton"]>button{{
-    background:{C["blue"]}!important;color:#fff!important;border-radius:9px!important;
-    font-weight:800!important;font-size:.85rem!important;padding:9px 16px!important;
-    box-shadow:0 2px 10px rgba(91,141,238,.3)!important}}
+    background:{C["surface"]}!important;
+    border:1px solid {C["border"]}!important;
+    border-radius:8px!important;font-weight:800!important;
+    font-size:.82rem!important;color:{C["text"]}!important}}
 
-/* ── form inputs ── */
-[data-testid="stTextInput"] input,[data-testid="stNumberInput"] input{{
-    background:{C["s2"]}!important;border:1px solid {C["border"]}!important;
-    border-radius:8px!important;color:{C["text"]}!important;font-family:'DM Sans',sans-serif!important}}
+/* ── form submit ─────────────────────────────────────────────────────────── */
+[data-testid="stFormSubmitButton"]>button{{
+    background:{C["blue"]}!important;color:#fff!important;
+    border:none!important;border-radius:8px!important;
+    font-weight:800!important;font-size:.82rem!important;
+    padding:8px 14px!important;
+    box-shadow:0 2px 8px rgba(37,99,235,.2)!important}}
+
+/* ── form inputs ─────────────────────────────────────────────────────────── */
+[data-testid="stTextInput"] input{{
+    background:{C["surface"]}!important;
+    border:1px solid {C["border"]}!important;
+    border-radius:7px!important;color:{C["text"]}!important;
+    font-family:'DM Sans',sans-serif!important}}
 [data-testid="stSelectbox"]>div>div{{
-    background:{C["s2"]}!important;border:1px solid {C["border"]}!important;
-    border-radius:8px!important;color:{C["text"]}!important}}
+    background:{C["surface"]}!important;
+    border:1px solid {C["border"]}!important;
+    border-radius:7px!important;color:{C["text"]}!important}}
 [data-testid="stExpander"]{{
-    background:{C["surface"]}!important;border:1px solid {C["border"]}!important;
-    border-radius:10px!important;margin:4px 0!important}}
-[data-testid="stExpander"] summary{{color:{C["text"]}!important;font-weight:700!important;font-size:.82rem!important}}
-[data-testid="stAlert"]{{border-radius:9px!important;border:none!important}}
-hr{{border-color:{C["border"]}!important;margin:8px 0!important}}
-::-webkit-scrollbar{{width:3px;height:3px}}
+    background:{C["surface"]}!important;
+    border:1px solid {C["border"]}!important;
+    border-radius:8px!important;margin:3px 0!important}}
+[data-testid="stExpander"] summary{{
+    color:{C["text"]}!important;font-weight:700!important;font-size:.78rem!important}}
+[data-testid="stAlert"]{{border-radius:8px!important;border:none!important}}
+hr{{border-color:{C["border"]}!important;margin:5px 0!important}}
+::-webkit-scrollbar{{width:2px;height:2px}}
 ::-webkit-scrollbar-thumb{{background:{C["border"]};border-radius:2px}}
 
-/* ── manage reorder buttons ── */
+/* ── fixed bottom strip ──────────────────────────────────────────────────── */
+.cs{{position:fixed;bottom:0;left:50%;transform:translateX(-50%);
+    width:100%;max-width:480px;z-index:999;
+    background:{C["surface"]};border-top:1px solid {C["border"]};
+    padding:7px 16px 16px;display:flex;align-items:center;gap:10px}}
+.cs-pct{{font-family:'JetBrains Mono',monospace;
+    font-size:.9rem;font-weight:700;flex-shrink:0}}
+.cs-bar{{flex:1;background:{C["s2"]};border-radius:100px;height:5px;overflow:hidden}}
+.cs-fill{{height:100%;border-radius:100px;transition:width .4s ease}}
+.cs-lbl{{font-size:.58rem;color:{C["muted"]};flex-shrink:0;
+    font-family:'JetBrains Mono',monospace}}
+
+/* ── manage reorder buttons ──────────────────────────────────────────────── */
 .reo [data-testid="stButton"]>button{{
     background:{C["s2"]}!important;color:{C["muted"]}!important;
-    border:1px solid {C["border"]}!important;border-radius:7px!important;
-    font-size:.75rem!important;width:32px!important;height:32px!important;
+    border:1px solid {C["border"]}!important;border-radius:6px!important;
+    font-size:.7rem!important;width:26px!important;height:26px!important;
     min-height:unset!important;padding:0!important}}
 .reo [data-testid="stButton"]>button:hover{{
     border-color:{C["blue"]}!important;color:{C["blue"]}!important}}
-
-/* column gap tightening */
-[data-testid="stHorizontalBlock"]{{gap:4px!important}}
 </style>""", unsafe_allow_html=True)
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -428,50 +465,43 @@ def render_top_bar():
             st.cache_data.clear(); st.rerun()
 
 # ═══════════════════════════════════════════════════════════════════════════════
-#  DATE HEADER  (rendered once, stays aligned with all habit rows)
+#  DATE HEADER ROW
 # ═══════════════════════════════════════════════════════════════════════════════
-# Column proportion shared across header + every habit row
-_COLS = [3.5, 0.85, 0.85, 0.85, 0.85, 1.15]
-
 def render_date_header(log_date):
-    """One sticky-style date header row above all habits."""
     dates = [log_date - timedelta(i) for i in range(4, -1, -1)]
-    hcols = st.columns(_COLS)
-    # col 0 empty (habit name area)
-    hcols[0].markdown('<div style="height:24px"></div>', unsafe_allow_html=True)
+    hcols = st.columns(_COLS, gap="small")
+    hcols[0].markdown('<div style="height:22px"></div>', unsafe_allow_html=True)
     for i, d in enumerate(dates):
-        is_active = (i == 4)
-        css_cls = "dhcell-today" if is_active else "dhcell-past"
+        cls = "dhcell-today" if i==4 else ""
         hcols[i+1].markdown(
-            f'<div class="dhcell {css_cls}" style="text-align:center">'
-            f'<div class="dhday">{d.strftime("%a").upper()[:3]}</div>'
+            f'<div class="dhcell {cls}">'
+            f'<div class="dhday">{d.strftime("%a")[:3].upper()}</div>'
             f'<div class="dhnum">{d.day}</div>'
             f'</div>',
             unsafe_allow_html=True
         )
 
 # ═══════════════════════════════════════════════════════════════════════════════
-#  SECTION RENDER  — list rows, no grid
+#  PAST DAY CELL HTML  (self-contained — no open/close across calls)
 # ═══════════════════════════════════════════════════════════════════════════════
-def _past_day_cell(val, h_type, tgt, hunit):
-    """Return HTML string for a read-only past-day cell."""
+def _past_cell(val, h_type, tgt, hunit):
     if h_type == "boolean":
-        if val is True:
-            return '<div class="dc dc-done">✓</div>'
-        return '<div class="dc dc-miss">✗</div>'
-    else:
-        if val is not None:
-            try:
-                fval = float(val)
-                if fval > 0:
-                    done = fval >= tgt
-                    disp = int(fval) if fval == int(fval) else round(fval, 1)
-                    cls  = "dc-num-ok" if done else "dc-num-lo"
-                    return f'<div class="{cls}">{disp}<span class="dc-unit">{hunit}</span></div>'
-            except: pass
-        return '<div class="dc-num-nil">—</div>'
+        return ('<div class="dc dc-done">✓</div>' if val is True
+                else '<div class="dc dc-miss">✗</div>')
+    if val is not None:
+        try:
+            fval = float(val)
+            if fval > 0:
+                disp = int(fval) if fval==int(fval) else round(fval,1)
+                cls  = "dc-ok" if fval>=tgt else "dc-lo"
+                return (f'<div class="dc-num {cls}">{disp}'
+                        f'<span class="dc-unit">{hunit}</span></div>')
+        except: pass
+    return '<div class="dc dc-nil">—</div>'
 
-
+# ═══════════════════════════════════════════════════════════════════════════════
+#  SECTION RENDER  — NO wrapping div open/close across st calls
+# ═══════════════════════════════════════════════════════════════════════════════
 def render_section(cat, cat_habits, log_date_iso, logs_df, today):
     if cat_habits.empty: return
 
@@ -480,7 +510,6 @@ def render_section(cat, cat_habits, log_date_iso, logs_df, today):
     dc           = C["green"] if (done_n==tot_n and tot_n>0) else C["muted"]
     accent       = CAT_COLOR.get(cat, C["blue"])
 
-    # ── section divider ──
     st.markdown(f"""<div class="sdiv">
         <div class="sdiv-dot" style="background:{accent}"></div>
         <div class="sdiv-txt" style="color:{accent}">{cat}</div>
@@ -488,63 +517,72 @@ def render_section(cat, cat_habits, log_date_iso, logs_df, today):
         <div class="sdiv-badge" style="color:{dc}">{done_n}/{tot_n}</div>
     </div>""", unsafe_allow_html=True)
 
-    # 5 dates: oldest → log_date
     dates = [log_date - timedelta(i) for i in range(4, -1, -1)]
 
-    # ── one row per habit ──
     for _, h in cat_habits.iterrows():
         hid    = str(h["HabitID"])
         hname  = str(h["Name"])
-        icon   = str(h.get("Icon", "🎯"))
+        icon   = str(h.get("Icon","🎯"))
         h_type = str(h["Type"])
         tgt    = float(h["Target"])
-        hunit  = str(h.get("TargetUnit", ""))
+        hunit  = str(h.get("TargetUnit",""))
         s      = streak(hid, logs_df, h_type, tgt)
 
-        # Values for the 5 display dates
-        day_vals = [get_log_val(hid, d.isoformat(), logs_df, h_type) for d in dates]
+        day_vals  = [get_log_val(hid, d.isoformat(), logs_df, h_type) for d in dates]
         today_val = day_vals[-1]
+        done      = (today_val is True)
 
-        st.markdown('<div class="habit-row-outer">', unsafe_allow_html=True)
-        rcols = st.columns(_COLS)
+        # Per-button done-state style: inject a <style> keyed to the button key.
+        # This avoids the wrapper-div bug entirely — no open/close div across calls.
+        btn_key = f"tog_{hid}_{log_date_iso}"
+        if h_type == "boolean":
+            bc = C["green"] if done else C["muted"]
+            bb = C["green"] if done else C["border"]
+            bg = "rgba(22,163,74,0.09)" if done else "transparent"
+            # Target via aria-label which Streamlit sets from button label
+            # More reliably: target button inside the column via its unique key
+            # Streamlit 1.x puts data-key on the surrounding div's parent stButton container
+            st.markdown(f"""<style>
+[data-testid="stButton"][data-key="{btn_key}"]>button,
+div[data-key="{btn_key}"] button{{
+    color:{bc}!important;
+    background:{bg}!important;
+    border:1.5px solid {bb}!important}}
+</style>""", unsafe_allow_html=True)
 
-        # ── col 0: icon + name ──
-        streak_html = (f'<span style="font-size:.55rem;color:{C["streak"]};'
-                       f'font-weight:700;margin-left:3px">🔥{s}</span>') if s > 0 else ""
-        subtext = f'{int(tgt)}{hunit} target' if h_type == "numeric" else ""
-        sub_html = (f'<div class="hname-sub">{subtext}</div>') if subtext else ""
+        # ── Build name HTML (fully self-contained) ──
+        streak_span = (f'<span class="hstreak" style="color:{C["streak"]}">🔥{s}</span>'
+                       if s>0 else "")
+        sub_html    = (f'<div class="hname-sub">{int(tgt)}{hunit} target</div>'
+                       if h_type=="numeric" else "")
 
-        rcols[0].markdown(f"""
-            <div style="display:flex;align-items:center;gap:7px;padding:5px 2px">
-                <div class="hicon-wrap" style="background:{accent}18">{icon}</div>
-                <div style="overflow:hidden;min-width:0">
-                    <div class="hname-txt">{hname}{streak_html}</div>
-                    {sub_html}
-                </div>
-            </div>
-        """, unsafe_allow_html=True)
+        # ── ROW using st.columns — no wrapping st.markdown div ──
+        rcols = st.columns(_COLS, gap="small")
 
-        # ── cols 1-4: past 4 days (read-only HTML) ──
+        rcols[0].markdown(
+            f'<div class="hname-wrap">'
+            f'<span class="hicon">{icon}</span>'
+            f'<div style="min-width:0;overflow:hidden">'
+            f'<div class="hname-txt">{hname}{streak_span}</div>'
+            f'{sub_html}'
+            f'</div></div>',
+            unsafe_allow_html=True
+        )
+
         for i in range(4):
             rcols[i+1].markdown(
-                _past_day_cell(day_vals[i], h_type, tgt, hunit),
+                _past_cell(day_vals[i], h_type, tgt, hunit),
                 unsafe_allow_html=True
             )
 
-        # ── col 5: today — interactive ──
         with rcols[5]:
             if h_type == "boolean":
-                done = today_val is True
-                wrap_cls = "tog-wrap tog-done" if done else "tog-wrap"
                 lbl = "✓" if done else "○"
-                st.markdown(f'<div class="{wrap_cls}">', unsafe_allow_html=True)
-                if st.button(lbl, key=f"tog_{hid}_{log_date_iso}",
-                             use_container_width=True):
+                if st.button(lbl, key=btn_key, use_container_width=True):
                     upsert_log(hid, hname, log_date_iso, not done)
                     st.rerun()
-                st.markdown('</div>', unsafe_allow_html=True)
             else:
-                curr = float(today_val) if today_val is not None else 0.0
+                curr    = float(today_val) if today_val is not None else 0.0
                 new_num = st.number_input(
                     "", value=curr, min_value=0.0, step=1.0, format="%g",
                     key=f"num_{hid}_{log_date_iso}",
@@ -552,10 +590,14 @@ def render_section(cat, cat_habits, log_date_iso, logs_df, today):
                 )
                 if not _same(new_num, curr, "numeric"):
                     upsert_log(hid, hname, log_date_iso,
-                               new_num if new_num > 0 else None)
+                               new_num if new_num>0 else None)
                     st.rerun()
 
-        st.markdown('</div>', unsafe_allow_html=True)
+        # separator line as its own self-contained markdown block
+        st.markdown(
+            f'<div class="row-sep"></div>',
+            unsafe_allow_html=True
+        )
 
 # ═══════════════════════════════════════════════════════════════════════════════
 #  SCREEN — TODAY
@@ -568,54 +610,59 @@ def screen_today():
 
     log_date     = st.session_state.log_date
     log_date_iso = log_date.isoformat()
-    is_today     = (log_date == today)
+    is_today     = (log_date==today)
 
-    # Header
     hour  = datetime.now().hour
     greet = "Morning 🌤" if hour<12 else "Afternoon ☀️" if hour<17 else "Evening 🌙"
     dn,tn = today_done_total(active, logs_df)
     pct   = round(dn/tn*100) if tn>0 else 0
     pc    = C["green"] if pct==100 else C["blue"] if pct>=50 else C["amber"]
 
-    date_line = log_date.strftime("%d %b") if not is_today else today.strftime("%A, %d %B %Y")
+    date_line = (today.strftime("%A, %d %B %Y") if is_today
+                 else log_date.strftime("%d %B %Y"))
     title_lbl = f"Good {greet}" if is_today else log_date.strftime("%d %b %Y")
 
     st.markdown(f"""<div class="hdr">
         <div class="hdr-date">{date_line.upper()}</div>
         <div class="hdr-greet">{title_lbl}</div>
-        <div class="pbar"><div class="pbar-fill" style="width:{pct}%;background:{pc}"></div></div>
-        <div class="pbar-lbl"><span>Today's progress</span>
-            <span style="color:{pc};font-weight:700">{dn}/{tn}</span></div>
+        <div class="pbar">
+            <div class="pbar-fill" style="width:{pct}%;background:{pc}"></div>
+        </div>
+        <div class="pbar-lbl">
+            <span>Today's progress</span>
+            <span style="color:{pc};font-weight:700">{dn}/{tn}</span>
+        </div>
     </div>""", unsafe_allow_html=True)
 
     if active.empty:
         st.info("No active habits. Go to Manage to get started."); return
 
-    # Date picker
     with st.expander("📅 Log for a different date", expanded=not is_today):
         picked = st.date_input("Date", value=log_date, max_value=today,
                                label_visibility="collapsed", key="date_pick")
         if picked != log_date:
             st.session_state.log_date = picked; st.rerun()
         if not is_today:
-            st.markdown(f'<span style="font-size:.68rem;color:{C["amber"]}">Logging: '
-                        f'{log_date.strftime("%d %b %Y")}</span>', unsafe_allow_html=True)
+            st.markdown(
+                f'<span style="font-size:.63rem;color:{C["amber"]}">Logging: '
+                f'{log_date.strftime("%d %b %Y")}</span>',
+                unsafe_allow_html=True
+            )
             if st.button("↩ Back to today", key="back_today"):
                 st.session_state.log_date = today; st.rerun()
 
-    # Date header (one per page)
     render_date_header(log_date)
 
-    # Category sections
     for cat in CATEGORIES:
         ch = active[active["Category"]==cat].reset_index(drop=True)
         render_section(cat, ch, log_date_iso, logs_df, today)
 
-    # Fixed bottom strip
     lbl = "All done! 🎉" if (tn>0 and dn==tn) else f"{pct}%"
     st.markdown(f"""<div class="cs">
         <div class="cs-pct" style="color:{pc}">{lbl}</div>
-        <div class="cs-bar"><div class="cs-fill" style="width:{pct}%;background:{pc}"></div></div>
+        <div class="cs-bar">
+            <div class="cs-fill" style="width:{pct}%;background:{pc}"></div>
+        </div>
         <div class="cs-lbl">{dn}/{tn}</div>
     </div>""", unsafe_allow_html=True)
 
@@ -624,8 +671,11 @@ def screen_today():
 # ═══════════════════════════════════════════════════════════════════════════════
 def screen_manage():
     habits_df = load_habits()
-    st.markdown(f'<div style="font-size:1.05rem;font-weight:900;padding:10px 4px 6px">'
-                f'Manage Habits</div>', unsafe_allow_html=True)
+    st.markdown(
+        f'<div style="font-size:1rem;font-weight:900;padding:10px 4px 6px;'
+        f'color:{C["text"]}">Manage Habits</div>',
+        unsafe_allow_html=True
+    )
 
     with st.expander("➕ Add New Habit", expanded=habits_df.empty):
         with st.form("add_form", clear_on_submit=True):
@@ -658,7 +708,7 @@ def screen_manage():
         if cat_h.empty: continue
 
         accent = CAT_COLOR.get(cat, C["blue"])
-        st.markdown(f"""<div class="sdiv" style="margin-top:14px">
+        st.markdown(f"""<div class="sdiv" style="margin-top:10px">
             <div class="sdiv-dot" style="background:{accent}"></div>
             <div class="sdiv-txt" style="color:{accent}">{cat}</div>
             <div class="sdiv-line"></div>
@@ -671,17 +721,17 @@ def screen_manage():
             htgt  = str(int(habit["Target"])) if htype=="numeric" else ""
             hunit = str(habit.get("TargetUnit",""))
             hord  = int(habit["Order"])
-            info  = f"{htype}  ·  target: {htgt}{hunit}" if htype=="numeric" else htype
+            info  = f"{htype}  ·  {htgt}{hunit}" if htype=="numeric" else htype
 
-            st.markdown(f"""<div style="background:{C['s2']};border:1px solid {C['border']};
-                border-radius:9px;padding:7px 12px;margin:2px 0;
-                display:flex;align-items:center;gap:8px">
-                <div style="flex:1;min-width:0">
-                    <div style="font-size:.82rem;font-weight:700;white-space:nowrap;
-                         overflow:hidden;text-overflow:ellipsis">{hname}</div>
-                    <div style="font-size:.58rem;color:{C['muted']}">{info}</div>
-                </div>
-            </div>""", unsafe_allow_html=True)
+            st.markdown(
+                f'<div style="background:{C["surface"]};'
+                f'border:1px solid {C["border"]};border-radius:7px;'
+                f'padding:5px 10px;margin:2px 0">'
+                f'<div style="font-size:.76rem;font-weight:700">{hname}</div>'
+                f'<div style="font-size:.52rem;color:{C["muted"]}">{info}</div>'
+                f'</div>',
+                unsafe_allow_html=True
+            )
 
             bu,bd,bp,bdel,bsp = st.columns([1,1,1,1,3])
             with bu:
@@ -704,29 +754,36 @@ def screen_manage():
             with bdel:
                 if st.session_state.confirm_del==hid:
                     if st.button("✓ Del?", key=f"cd_{hid}"):
-                        delete_habit(hid); st.session_state.confirm_del=None; st.rerun()
+                        delete_habit(hid)
+                        st.session_state.confirm_del=None; st.rerun()
                 else:
                     if st.button("🗑", key=f"del_{hid}"):
                         st.session_state.confirm_del=hid; st.rerun()
             with bsp:
                 if st.session_state.confirm_del==hid:
-                    st.markdown(f'<span style="font-size:.6rem;color:{C["red"]}">Deletes all logs</span>',
-                                unsafe_allow_html=True)
+                    st.markdown(
+                        f'<span style="font-size:.56rem;color:{C["red"]}">Deletes all logs</span>',
+                        unsafe_allow_html=True
+                    )
 
-    # Paused
     inactive = habits_df[habits_df["Active"]==False].reset_index(drop=True)
     if not inactive.empty:
         st.markdown("---")
-        st.markdown(f'<div class="sdiv-txt" style="margin:6px 0 4px;color:{C["muted"]}">Paused</div>',
-                    unsafe_allow_html=True)
+        st.markdown(
+            f'<div style="font-size:.55rem;font-weight:800;letter-spacing:1px;'
+            f'text-transform:uppercase;color:{C["muted"]};margin:4px 0 2px">Paused</div>',
+            unsafe_allow_html=True
+        )
         for _,habit in inactive.iterrows():
             hid   = str(habit["HabitID"])
             hname = str(habit["Name"])
             ci,cb = st.columns([5,1])
             with ci:
-                st.markdown(f'<div style="padding:5px 4px;opacity:.4;font-size:.8rem;'
-                            f'border-bottom:1px solid {C["border"]}">{hname}</div>',
-                            unsafe_allow_html=True)
+                st.markdown(
+                    f'<div style="padding:4px;opacity:.4;font-size:.74rem;'
+                    f'border-bottom:1px solid {C["border"]}">{hname}</div>',
+                    unsafe_allow_html=True
+                )
             with cb:
                 if st.button("▶", key=f"res_{hid}"):
                     toggle_active(hid, False); st.rerun()
