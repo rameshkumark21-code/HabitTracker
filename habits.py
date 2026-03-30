@@ -468,11 +468,11 @@ def render_top_bar():
 #  DATE HEADER ROW
 # ═══════════════════════════════════════════════════════════════════════════════
 def render_date_header(log_date):
-    dates = [log_date - timedelta(i) for i in range(4, -1, -1)]
+    dates = [log_date - timedelta(i) for i in range(0, 5)]
     hcols = st.columns(_COLS, gap="small")
     hcols[0].markdown('<div style="height:22px"></div>', unsafe_allow_html=True)
     for i, d in enumerate(dates):
-        cls = "dhcell-today" if i==4 else ""
+        cls = "dhcell-today" if i==0 else ""
         hcols[i+1].markdown(
             f'<div class="dhcell {cls}">'
             f'<div class="dhday">{d.strftime("%a")[:3].upper()}</div>'
@@ -517,7 +517,7 @@ def render_section(cat, cat_habits, log_date_iso, logs_df, today):
         <div class="sdiv-badge" style="color:{dc}">{done_n}/{tot_n}</div>
     </div>""", unsafe_allow_html=True)
 
-    dates = [log_date - timedelta(i) for i in range(4, -1, -1)]
+    dates = [log_date - timedelta(i) for i in range(0, 5)]
 
     for _, h in cat_habits.iterrows():
         hid    = str(h["HabitID"])
@@ -529,7 +529,7 @@ def render_section(cat, cat_habits, log_date_iso, logs_df, today):
         s      = streak(hid, logs_df, h_type, tgt)
 
         day_vals  = [get_log_val(hid, d.isoformat(), logs_df, h_type) for d in dates]
-        today_val = day_vals[-1]
+        today_val = day_vals[0]
         done      = (today_val is True)
 
         # Per-button done-state style: inject a <style> keyed to the button key.
@@ -569,13 +569,7 @@ div[data-key="{btn_key}"] button{{
             unsafe_allow_html=True
         )
 
-        for i in range(4):
-            rcols[i+1].markdown(
-                _past_cell(day_vals[i], h_type, tgt, hunit),
-                unsafe_allow_html=True
-            )
-
-        with rcols[5]:
+        with rcols[1]:
             if h_type == "boolean":
                 lbl = "✓" if done else "○"
                 if st.button(lbl, key=btn_key, use_container_width=True):
@@ -592,6 +586,12 @@ div[data-key="{btn_key}"] button{{
                     upsert_log(hid, hname, log_date_iso,
                                new_num if new_num>0 else None)
                     st.rerun()
+
+        for i in range(4):
+            rcols[i+2].markdown(
+                _past_cell(day_vals[i+1], h_type, tgt, hunit),
+                unsafe_allow_html=True
+            )
 
         # separator line as its own self-contained markdown block
         st.markdown(
